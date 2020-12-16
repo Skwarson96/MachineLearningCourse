@@ -69,16 +69,16 @@ def fill_missing_values(train_data, test_data):
     test_data_filled[['fare', 'TicketClass']] = fare_imputer.fit_transform(test_data[['fare', 'TicketClass']])
 
     # Age column fill
-    plt.figure("before fill")
-    plt.hist(train_data_filled['age'], bins=80)
+    # plt.figure("before fill")
+    # plt.hist(train_data_filled['age'], bins=80)
 
     age_impouter = impute.IterativeImputer(missing_values=np.nan, random_state=42)
 
     train_data_filled[['age', 'parch', 'sibsp', 'fare', 'TicketClass']] = age_impouter.fit_transform(train_data[['age', 'parch', 'sibsp', 'fare', 'TicketClass']])
     test_data_filled[['age', 'parch', 'sibsp', 'fare', 'TicketClass']] = age_impouter.fit_transform(test_data[['age', 'parch', 'sibsp', 'fare', 'TicketClass']])
 
-    plt.figure("after fill")
-    plt.hist(train_data_filled['age'], bins=80)
+    # plt.figure("after fill")
+    # plt.hist(train_data_filled['age'], bins=80)
     # plt.show()
 
     return train_data_filled, test_data_filled
@@ -98,6 +98,21 @@ def change_object_values(train_data, test_data):
 
     return train_data, test_data
 
+def survival_corelation_by_sex(train_data, train_labels):
+    train_combined = pd.concat([train_data, train_labels.astype(float)], axis=1)
+    df = train_combined[['sex', 'survived']]
+    df = df.groupby('sex').mean()
+    print(df)
+
+def correlation_and_box_plot(train_data, train_labels):
+    X_combined = pd.concat([train_data, train_labels.astype(float)], axis=1)
+    print(X_combined.corr().head(5))
+    plt.figure()
+    c = sns.heatmap(X_combined.corr(), annot=True, cmap='Dark2')
+
+    plt.figure()
+    X_combined.boxplot()
+    plt.show()
 
 def main():
     X, y = read_data()
@@ -124,6 +139,14 @@ def main():
     clf_rf.fit(X_train_filled, y_train)
     y_predicted_rf = clf_rf.predict(X_test_filled)
     print("RandomForest", metrics.classification_report(y_test, y_predicted_rf))
+
+
+    # survival_corelation_by_sex(X_train_filled, y_train)
+
+    correlation_and_box_plot(X_train_filled, y_train)
+
+
+
 
 if __name__ == '__main__':
 
